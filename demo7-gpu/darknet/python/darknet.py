@@ -8,6 +8,7 @@ import numpy as np
 from flask import Flask, render_template, Response
 from threading import Thread
 import yt_down
+import requests
 
 
 VIDEO_NAME = 'vid.mp4'
@@ -249,6 +250,29 @@ class PrepVideo(Thread):
             time.sleep(self.sleep)
 
 
+class PrepCam(Thread):
+    def __init__(self, FPS):
+        Thread.__init__(self)
+        self.sleep = float(1 / FPS)
+        self.running = True
+        self.addr = 'http://192.168.0.110:8010/'
+        content_type = 'image/jpeg'
+        self.headers = {'content-type': content_type}
+
+    def run(self):
+        global video_frames
+        while self.running:
+            if len(video_frames) < 400:
+                response = requests.get(self.addr)
+                frame = np.fromstring(response.content, np.uint8)
+
+                img = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+                if img is not None:
+                    # Put image into process array and frames into frames
+                    video_frames.append(img)
+                    print 'len: ', len(video_frames)
+
+
 evaluated_frames = []
 class EvalFrame(Thread):
     def __init__(self, net, meta):
@@ -368,7 +392,7 @@ if __name__ == "__main__":
     yt_down.down(VIDEO_URL)
 
     # Thread to read video frame by frame and prepare it for predict
-    read_vid_thread = PrepVideo('vid.mp4', 50)
+    read_vid_thread = PrepCam(50)
 
     read_vid_thread.deamon = True
     read_vid_thread.start()

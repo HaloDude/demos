@@ -24,11 +24,12 @@ apt-get install libxrender1
 
 RUN pip install opencv-contrib-python==3.4.0.12 && \
 pip install youtube-dl==2017.11.15 && \
-pip install flask
+pip install flask && \
+pip install requests
 
 
 USER root
-EXPOSE 8000
+EXPOSE 8001
 WORKDIR /opt
 
 COPY /darknet /opt/darknet
@@ -38,7 +39,7 @@ RUN chmod +x /opt/run.sh
 
 ENV VIDEO_LINK=https://www.youtube.com/watch?v=9bZkp7q19f0
 ENV VIDEO_OUTPUT_COMPRESSION=10
-ENV OUTPUT_PORT=8000
+ENV OUTPUT_PORT=8001
 
 CMD ["./run.sh"]
 
