@@ -255,7 +255,7 @@ class PrepCam(Thread):
         Thread.__init__(self)
         self.sleep = float(1 / FPS)
         self.running = True
-        self.addr = 'http://192.168.0.110:8010/'
+        self.addr = 'http://127.0.0.1:8010/'
         content_type = 'image/jpeg'
         self.headers = {'content-type': content_type}
 
@@ -264,13 +264,14 @@ class PrepCam(Thread):
         while self.running:
             if len(video_frames) < 400:
                 response = requests.get(self.addr)
-                frame = np.fromstring(response.content, np.uint8)
+                if response.status_code != 206:
+                    frame = np.fromstring(response.content, np.uint8)
+                    img = cv2.imdecode(frame, cv2.IMREAD_COLOR)
 
-                img = cv2.imdecode(frame, cv2.IMREAD_COLOR)
-                if img is not None:
-                    # Put image into process array and frames into frames
-                    video_frames.append(img)
-                    print 'len: ', len(video_frames)
+                    if img is not None:
+                        # Put image into process array and frames into frames
+                        video_frames.append(img)
+                        print 'len: ', len(video_frames)
 
 
 evaluated_frames = []
@@ -385,14 +386,20 @@ if __name__ == "__main__":
     net = load_net("../cfg/yolov3.cfg", "../yolov3.weights", 0)
     meta = load_meta("../cfg/coco.data")
 
+    # net = load_net("../cfg/yolov-obj.cfg", "../yolov-obj.weights", 0)
+    # meta = load_meta("../cfg/obj.data")
+
     VIDEO_URL = sys.argv[1]
     port = int(sys.argv[2])
     compression = int(sys.argv[3])
-
-    yt_down.down(VIDEO_URL)
+    cam = int(sys.argv[4])
 
     # Thread to read video frame by frame and prepare it for predict
-    read_vid_thread = PrepCam(50)
+    if cam == 1:
+        read_vid_thread = PrepCam(50)
+    else:
+        yt_down.down(VIDEO_URL)
+        read_vid_thread = PrepVideo('vid.mp4', 40)
 
     read_vid_thread.deamon = True
     read_vid_thread.start()

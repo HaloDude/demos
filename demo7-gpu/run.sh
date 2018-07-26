@@ -29,4 +29,4 @@ done
 echo "Port found: ${OUTPUT_PORT}"
 
 # Run script
-python darknet.py $VIDEO_LINK $OUTPUT_PORT $VIDEO_OUTPUT_COMPRESSION
+python darknet.py $VIDEO_LINK $OUTPUT_PORT $VIDEO_OUTPUT_COMPRESSION $CAM

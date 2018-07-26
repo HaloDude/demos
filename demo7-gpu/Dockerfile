@@ -29,7 +29,7 @@ pip install requests
 
 
 USER root
-EXPOSE 8001
+EXPOSE 8005
 WORKDIR /opt
 
 COPY /darknet /opt/darknet
@@ -39,7 +39,8 @@ RUN chmod +x /opt/run.sh
 
 ENV VIDEO_LINK=https://www.youtube.com/watch?v=9bZkp7q19f0
 ENV VIDEO_OUTPUT_COMPRESSION=10
-ENV OUTPUT_PORT=8001
+ENV OUTPUT_PORT=8005
+ENV CAM=0
 
 CMD ["./run.sh"]
 
@@ -49,3 +50,6 @@ CMD ["./run.sh"]
 
 #docker pull dfedorchuk/qb_ebt:nvidia_demo
 #nvidia-docker run -p 8000:8000 dfedorchuk/qb_ebt:nvidia_demo
+
+# SSh tunnel
+# ssh -i "dfedorchuk.pem" -L 8010:127.0.0.1:8010 -L 8005:127.0.0.1:8005 ubuntu@ec2-34-204-166-136.compute-1.amazonaws.com -N
